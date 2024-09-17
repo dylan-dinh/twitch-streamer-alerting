@@ -22,4 +22,14 @@ go.work
 go.work.sum
 
 # env file
-.env
+.fish-env
+
+.secret-twitch
+
+# Default ignored files
+/shelf/
+/workspace.xml
+# Editor-based HTTP Client requests
+/httpRequests/
+# Datasource local storage ignored files
+/dataSources/
