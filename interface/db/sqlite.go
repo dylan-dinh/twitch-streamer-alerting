@@ -18,7 +18,7 @@ func NewSqlite(config config.Config) (*Sqlite, error) {
 		return nil, fmt.Errorf("failed to connect to database: %w", err)
 	}
 
-	err = db.AutoMigrate(&domain.User{}, &domain.Broadcaster{})
+	err = db.AutoMigrate(&domain.User{}, &domain.Broadcaster{}, &domain.AppConfig{})
 	if err != nil {
 		return nil, fmt.Errorf("failed to migrate database: %w", err)
 	}

@@ -44,7 +44,7 @@ func New(config config.Config) *Twitch {
 	}
 }
 
-func (t *Twitch) GetAccessToken() (string, error) {
+func (t *Twitch) GetAccessToken() (ResponseAccessToken, error) {
 	values := url.Values{}
 	values.Set("client_id", t.twitchClientId)
 	values.Set("client_secret", t.twitchClientSecret)
@@ -52,25 +52,23 @@ func (t *Twitch) GetAccessToken() (string, error) {
 
 	resp, err := t.http.PostForm(twitchUrlAccessToken, values)
 	if err != nil {
-		return "", err
+		return ResponseAccessToken{}, err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("error while getting access token, status code is : %d", resp.StatusCode)
+		return ResponseAccessToken{}, fmt.Errorf("error while getting access token, status code is : %d", resp.StatusCode)
 	}
 
 	all, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return "", err
+		return ResponseAccessToken{}, err
 	}
 
 	var responseAccessToken ResponseAccessToken
 	if err = json.Unmarshal(all, &responseAccessToken); err != nil {
-		return "", err
+		return ResponseAccessToken{}, err
 	}
 
-	fmt.Println(responseAccessToken)
-
-	return responseAccessToken.AccessToken, nil
+	return responseAccessToken, nil
 }

@@ -9,8 +9,3 @@ type User struct {
 	LastName    *string
 	Broadcaster []*Broadcaster `gorm:"many2many:user_broadcasters;"`
 }
-
-type Broadcaster struct {
-	gorm.Model
-	BroadcasterId uint8
-}
