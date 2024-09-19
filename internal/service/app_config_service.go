@@ -8,8 +8,8 @@ type AppConfigService struct {
 	AppConfig repository.AppConfig
 }
 
-func New(AppConfig repository.AppConfig) AppConfigService {
-	return AppConfigService{
+func NewAppconfigService(AppConfig repository.AppConfig) *AppConfigService {
+	return &AppConfigService{
 		AppConfig: AppConfig,
 	}
 }

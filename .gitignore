@@ -35,3 +35,4 @@ go.work.sum
 /dataSources/
 test.db
 TODO.list
+.env

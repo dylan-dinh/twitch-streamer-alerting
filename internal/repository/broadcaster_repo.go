@@ -9,6 +9,7 @@ import (
 
 type Broadcaster interface {
 	Insert(broadcaster domain.Broadcaster) error
+	GetBroadcastersWithoutUrl() ([]domain.Broadcaster, error)
 }
 
 type BroadcasterRepo struct {
@@ -27,4 +28,13 @@ func (b *BroadcasterRepo) Insert(broadcaster domain.Broadcaster) error {
 		return res.Error
 	}
 	return nil
+}
+
+func (b *BroadcasterRepo) GetBroadcastersWithoutUrl() ([]domain.Broadcaster, error) {
+	var broadcasters []domain.Broadcaster
+	res := b.Db.Where("url IS NULL").Find(&broadcasters)
+	if res.Error != nil {
+		return []domain.Broadcaster{}, res.Error
+	}
+	return broadcasters, nil
 }
