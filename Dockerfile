@@ -22,6 +22,7 @@ FROM debian:bookworm-slim
 RUN apt-get update && apt-get install -y ca-certificates sqlite3 libsqlite3-0
 
 COPY --from=builder go/app/tsa /tsa
+COPY --from=builder go/app/test.db /test.db
 
 RUN chmod +x /tsa
 
