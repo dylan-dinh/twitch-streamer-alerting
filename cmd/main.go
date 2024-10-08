@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/dylan-dinh/twitch-streamer-alerting/api"
 	"github.com/dylan-dinh/twitch-streamer-alerting/config"
 	"github.com/dylan-dinh/twitch-streamer-alerting/interface/db"
 	"github.com/dylan-dinh/twitch-streamer-alerting/interface/external/oauth2"
@@ -9,21 +10,11 @@ import (
 	"github.com/dylan-dinh/twitch-streamer-alerting/internal/factory"
 	"github.com/dylan-dinh/twitch-streamer-alerting/internal/repository"
 	"github.com/dylan-dinh/twitch-streamer-alerting/internal/service"
-	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	r := gin.Default()
-
-	// Set up routes
-	r.GET("/", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "Hello, world!",
-		})
-	})
-
 	// config to load env var
-	newConfig, err := config.NewConfig(true)
+	newConfig, err := config.NewConfig(false)
 	if err != nil {
 		panic(err)
 	}
@@ -49,6 +40,7 @@ func main() {
 	// external services
 	twitchService := twitch.New(newConfig, broadcastService, appConfigService)
 
+	// routine setup
 	routines := []factory.Routines{
 		{
 			Name:    twitch.JobRefreshAccessToken,
@@ -59,13 +51,23 @@ func main() {
 	routinesFactory := factory.NewRoutinesFactory(routines)
 	routinesFactory.StartRoutinesFactory()
 
+	_, err = twitchService.GetBroadcastersID()
+	if err != nil {
+		panic(err)
+	}
+
+	// handler initialization
+	user := api.NewUserHandler(repository.NewUserRepo(DB))
+
+	// router set up
+	router := api.SetUpRouter(user)
+
 	// Run the HTTP server
 	go func() {
-		if err := r.Run(":8080"); err != nil {
+		if err := router.Run(":8080"); err != nil {
 			routinesFactory.ErrChan <- fmt.Errorf("gin server error: %v", err)
 		}
 	}()
 
 	routinesFactory.StopRoutinesFactory()
-
 }

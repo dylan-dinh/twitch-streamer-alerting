@@ -4,7 +4,7 @@ import "gorm.io/gorm"
 
 type Broadcaster struct {
 	gorm.Model
-	BroadcasterId uint8
+	BroadcasterId uint64
 	Login         string
 	DisplayName   string
 	Type          string

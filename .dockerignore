@@ -1,0 +1,10 @@
+.fish-env
+.gitignore
+.secret-twitch
+Dockerfile
+kubeconfig
+.dockerignore
+TODO.list
+.git
+.idea
+.env

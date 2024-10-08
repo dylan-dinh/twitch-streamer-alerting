@@ -36,3 +36,7 @@ go.work.sum
 test.db
 TODO.list
 .env
+.idea
+kubeconfig/ddinh.key
+kubeconfig/ddinh.csr
+kubeconfig/secret.ddinh

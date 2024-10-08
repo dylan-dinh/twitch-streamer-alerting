@@ -8,7 +8,7 @@ import (
 )
 
 type Broadcaster interface {
-	Insert(broadcaster domain.Broadcaster) error
+	Insert(domain.Broadcaster) error
 	GetBroadcastersWithoutUrl() ([]domain.Broadcaster, error)
 }
 
@@ -37,4 +37,12 @@ func (b *BroadcasterRepo) GetBroadcastersWithoutUrl() ([]domain.Broadcaster, err
 		return []domain.Broadcaster{}, res.Error
 	}
 	return broadcasters, nil
+}
+
+func (b *BroadcasterRepo) Update(broadcaster domain.Broadcaster) error {
+	res := b.Db.Save(&broadcaster)
+	if res.Error != nil {
+		return res.Error
+	}
+	return nil
 }
