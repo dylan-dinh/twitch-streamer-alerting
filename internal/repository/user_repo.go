@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"errors"
 	"github.com/dylan-dinh/twitch-streamer-alerting/internal/domain"
 	"gorm.io/gorm"
 	"log/slog"
@@ -8,7 +9,8 @@ import (
 )
 
 type User interface {
-	Insert(domain.User) error
+	Insert(*gorm.DB, domain.User) (domain.User, error)
+	FindByEmailAndPassword(string, string) (domain.User, error)
 }
 
 type UserRepo struct {
@@ -23,12 +25,16 @@ func NewUserRepo(db *gorm.DB) UserRepo {
 	}
 }
 
-func (r UserRepo) Insert(user domain.User) error {
-	res := r.Db.Create(&user)
+func (r UserRepo) Insert(tx *gorm.DB, user domain.User) (domain.User, error) {
+	res := tx.Create(&user)
 	if res.Error != nil {
-		return res.Error
+		if errors.Is(res.Error, gorm.ErrDuplicatedKey) {
+			return domain.User{}, &domain.BadRequestError{Err: domain.ErrEmailExists}
+		}
+		return domain.User{}, res.Error
 	}
-	return nil
+
+	return user, nil
 }
 
 func (r UserRepo) FindByEmailAndPassword(email, password string) (domain.User, error) {

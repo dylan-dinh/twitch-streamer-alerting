@@ -8,6 +8,7 @@ import (
 	"github.com/dylan-dinh/twitch-streamer-alerting/interface/external/oauth2"
 	"github.com/dylan-dinh/twitch-streamer-alerting/interface/external/twitch"
 	"github.com/dylan-dinh/twitch-streamer-alerting/internal/factory"
+	"github.com/dylan-dinh/twitch-streamer-alerting/internal/jwt"
 	"github.com/dylan-dinh/twitch-streamer-alerting/internal/repository"
 	"github.com/dylan-dinh/twitch-streamer-alerting/internal/service"
 )
@@ -24,11 +25,12 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	DB := sqlite.Db
+	DB := sqlite.GetDB()
 
 	// internal repositories
 	appConfigRepo := repository.NewAppConfigRepo(DB)
 	broadcasterRepo := repository.NewBroadcasterRepo(DB)
+	userRepo := repository.NewUserRepo(DB)
 
 	// internal services
 	appConfigService := service.NewAppconfigService(appConfigRepo)
@@ -40,6 +42,20 @@ func main() {
 	// external services
 	twitchService := twitch.New(newConfig, broadcastService, appConfigService)
 
+	_, err = twitchService.GetBroadcastersID()
+	if err != nil {
+		panic(err)
+	}
+
+	// Jwt service
+	j := jwt.NewJwt(newConfig)
+
+	// handler initialization
+	user := api.NewUserHandler(service.NewUserService(userRepo, DB), j)
+
+	// router set up
+	router := api.SetUpRouter(user)
+
 	// routine setup
 	routines := []factory.Routines{
 		{
@@ -50,17 +66,6 @@ func main() {
 
 	routinesFactory := factory.NewRoutinesFactory(routines)
 	routinesFactory.StartRoutinesFactory()
-
-	_, err = twitchService.GetBroadcastersID()
-	if err != nil {
-		panic(err)
-	}
-
-	// handler initialization
-	user := api.NewUserHandler(repository.NewUserRepo(DB))
-
-	// router set up
-	router := api.SetUpRouter(user)
 
 	// Run the HTTP server
 	go func() {

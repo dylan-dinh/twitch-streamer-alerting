@@ -13,7 +13,7 @@ type Sqlite struct {
 }
 
 func NewSqlite(config config.Config) (*Sqlite, error) {
-	db, err := gorm.Open(sqlite.Open(config.DbName), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open(config.DbName), &gorm.Config{TranslateError: true})
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to database: %w", err)
 	}
@@ -26,4 +26,8 @@ func NewSqlite(config config.Config) (*Sqlite, error) {
 	return &Sqlite{
 		Db: db,
 	}, nil
+}
+
+func (s *Sqlite) GetDB() *gorm.DB {
+	return s.Db
 }
