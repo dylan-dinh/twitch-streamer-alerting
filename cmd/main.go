@@ -15,7 +15,7 @@ import (
 
 func main() {
 	// config to load env var
-	newConfig, err := config.NewConfig(false)
+	newConfig, err := config.NewConfig(true)
 	if err != nil {
 		panic(err)
 	}

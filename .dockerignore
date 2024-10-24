@@ -7,4 +7,4 @@ kubeconfig
 TODO.list
 .git
 .idea
-.env
+# .env
